@@ -1,0 +1,175 @@
+{% extends '__base__.html' %}
+{% block title %}首页{% endblock  %}
+{% block beforehead %}
+<script>
+    // using jQuery
+    {% comment %} function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    var csrftoken = getCookie('csrftoken');
+    console.log("csrftoken的值为："+csrftoken);
+    console.log("js中csrftoken的值为："+$.cookie("csrftoken")); {% endcomment %}
+
+    function initVM(data){
+        var vm = new Vue({
+            el:'#vm',
+            data:{
+                blogs:data.usecaselist,
+                page:data.page,
+                test:'hello'
+            },
+            methods:{
+                execute_test:function(){
+                    var sitv = setInterval(function(){
+                        var prog_url = "/progress_monitor/"
+                        getJSON(prog_url,{},function(err,res){
+                            console.log("err:"+err);
+                            $('#prog_in').width(res + '%');//改变进度条
+                        });
+                    },1000); //每一秒请求一次后台进度
+
+                    postJSON("/test/",{
+                        test_name:"TEST"
+                    },function(err,r){
+                        console.log("执行err："+err)
+                        console.log(r.msg)
+                        if(err){
+                            clearInterval(sitv);//请求失败，结束对后台进度的查询
+                            return alert(err.message || err.error ||err);
+                        }else{
+                            clearInterval(sitv);//请求成功，结束对后台进度的查询
+                            $('#prog_out').attr("class","progress progress-bar-success");//修改进度条为成功状态
+                            return alert(r.msg);
+                        }
+                        refresh();
+                    });
+                }
+            }
+        });
+        $('#vm').show();
+    }
+    $(function(){
+        getJSON('/index/data_unittes',{
+            page:{{page.page_index}}
+        },function(err,results){
+            //alert(results)
+            if (err){
+                return fatal(err);
+            }
+            $('#loading').hide();
+            initVM(results);
+        });
+    });
+
+</script>
+{% endblock %}
+{% block content %}
+    <div class="uk-width-1-1 uk-margin-bottom">
+        <div class="uk-panel uk-panel-box">
+            <ul class="uk-breadcrumb">
+                <li><a href="/go_report/show_report">单元测试</a></li>
+                <li class="uk-active"><span>测试用例</span></li>
+                <li><a href="/go_report">测试报告</a></li>
+            </ul>
+        </div>
+    </div>
+    <div id="error" class="uk-width-1-1"></div>
+
+    <div id="loading" class="uk-width-1-1 uk-text-center">
+        <span><i class="uk-icon-spinner uk-icon-medium uk-icon-spin"></i>正在加载...</span>
+    </div>
+    
+    <div id="vm" class="uk-width-1-1">
+        <a href="/index" class="uk-button uk-button-primary"><i class="uk-icon-plus"></i> 批量导入</a>
+        <a href="#0" v-on="click:execute_test()" class="uk-button uk-button-primary">执行测试</a>
+        <div id="prog_out" class="progress progress-striped active">
+            <div id="prog_in" class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="0" aria-valuemax="100" style="width:0%;">
+            </div>
+        </div>
+        <table class="uk-table uk-table-hover">
+            <thead>
+                <tr>
+                    <th class="uk-width-1-10">编号</th>
+                    <th class="uk-width-3-10">utter</th>
+                    <th class="uk-width-1-10">nowtime</th>
+                    <th class="uk-width-1-10">session_id</th>
+                    <th class="uk-width-3-10">expectResults</th>
+                     <th class="uk-width-1-10">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-repeat="usecase:blogs">
+                    <td><span v-text="usecase.id"></span></td>
+                    <td><span v-text="usecase.utter"></span></td>
+                    <td><span v-text="usecase.nowtime"></span></td>
+                    <td><span v-text="usecase.session_id"></span></td>
+                    <td><span v-text="usecase.expectResults"></span></td>
+                    <td>
+                        <a href="/index"><i class="uk-icon-edit"></i>
+                        <a href="/index"><i class="uk-icon-trash-o"></i>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <!--<div v-component="pagination" v-with="page"></div>-->
+        <div><ul class="uk-pagination">
+                <li v-if="! page.has_previous" class="uk-disabled"><span><i class="uk-icon-angle-double-left"></i>前一页</span></li>
+                <li v-if="page.has_previous"><a v-attr="onclick:'gotoPage(' + (page.page_index-1) + ')'" href="#0"><i class="uk-icon-angle-double-left"></i>前一页</a></li>
+                <li class="uk-active"><span v-text="page.page_index"></span></li>
+                <li v-if="! page.has_next" class="uk-disabled"><span><i class="uk-icon-angle-double-right"></i>下一页</span></li>
+                <li v-if="page.has_next"><a v-attr="onclick:'gotoPage(' + (page.page_index+1) + ')'" href="#0"><i class="uk-icon-angle-double-right"></i>下一页</a></li>
+            </ul></div>
+    </div>
+<!--
+    <div>
+        <form action="/test/" method="post">
+            {% csrf_token %}
+            <input type='text' name='test_name'/>
+            <input type='submit' value='执行测试'/>
+        </form>
+        <p>{{msg}}</p>
+    </div>
+    <div>{{page.page_count}}</div>
+    <div class="uk-width-1-1">
+        <a href="/index" class="uk-button uk-button-primary"><i class="uk-icon-plus"></i> 添加</a>
+
+        <table class="uk-table uk-table-hover">
+            <thead>
+                <tr>
+                    <th class="uk-width-1-10">编号</th>
+                    <th class="uk-width-4-10">utter</th>
+                    <th class="uk-width-2-10">nowtime</th>
+                    <th class="uk-width-2-10">session_id</th>
+                    <th class="uk-width-4-10">expectResults</th>
+                     <th class="uk-width-1-10">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for usecase in usecaselist %}
+                <tr>
+                    <td>{{usecase.id}}</td>
+                    <td>{{usecase.utter}}</td>
+                    <td>{{usecase.nowtime}}</td>
+                    <td>{{usecase.session_id}}</td>
+                    <td>{{usecase.expectResults}}</td>
+                    <td>&nbsp;</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div><a href='index/data_unittes/?page=1'>《</a><a href='index/data_unittes/?page=1'>{{page.page_count}}</a><a href='index/data_unittes/?page=1'>》</a></div>
+    </div>
+    -->
+{% endblock  %}

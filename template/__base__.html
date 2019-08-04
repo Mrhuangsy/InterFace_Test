@@ -1,0 +1,70 @@
+{% load staticfiles %}
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>{% block title %}?{% endblock %} - Automated interface test platform</title>
+    <link rel="stylesheet" href="/static/css/uikit.min.css">
+    <link rel="stylesheet" href="/static/css/uikit.gradient.min.css">
+    <link rel="stylesheet" href="/static/css/awesome.css" />
+    <link rel="stylesheet" href="/static/css/bootstrap-4.3.1-css/bootstrap.min.css" />
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/sha1.min.js"></script>
+    <script src="/static/js/uikit.min.js"></script>
+    <script src="/static/js/sticky.min.js"></script>
+    <script src="/static/js/vue.min.js"></script>
+    <script src="/static/js/jquery.cookie.js"></script>
+    <script src="/static/js/bootstrap-4.3.1-js/bootstrap.min.js"></script>
+    <script src="/static/js/awesome.js"></script>
+    {% block beforehead %}<!--before head for add script-->{% endblock %}
+</head>
+<body>
+    <nav class="uk-navbar uk-navbar-attached uk-margin-bottom">
+        <div class="uk-container uk-container-center">
+            <a href="/index" class="uk-navbar-brand">Home</a>
+            <ul class="uk-navbar-nav">
+                <li><a href="/index"><i class="uk-icon-home"></i> 日志</a></li>
+                <li><a href="/index">配置</a></li>
+                <li><a href="/index">源码</a></li>
+            </ul>
+            <div class="uk-navbar-flip">
+                <ul class="uk-navbar-nav">
+                    <li class="uk-parent" data-uk-dropdown>
+                        <a href="/index">系统设置</a>
+                        <div class="uk-dropdown  uk-dropdown-navbar">
+                            <ul class="uk-nav uk-nav-navbar">
+                                <li><a href="/index">主题</a></li>
+                                <li><a href="/index">help</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="uk-container uk-container-center">
+        <div class="uk-grid">
+        <!-- content -->
+        {% block content %}
+        {% endblock %}
+        <!-- //content -->
+        </div>
+    </div>
+
+    <div class="uk-margin-large-top" style="background-color:#eee;border-top:1px solid #ccc;">
+        <div class="uk-container uk-container-center uk-text-center">
+            <div class="uk-panel uk-margin-top uk-margin-bottom">
+                <p>
+                    <a href="/index">图标1</a>
+                    <a href="/index">图标2</a>
+                    <a href="/index">图标3</a>
+                    <a href="/index">图标4</a>
+                </p>
+                <p>Say something casually, write something, copyright related 2019</p>
+                <p>all right reserved</p>
+                <a href="/index">图标5</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

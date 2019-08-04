@@ -1,0 +1,3 @@
+batch_dialogue_test
+#batch_myrobot_test
+#dialogue_test

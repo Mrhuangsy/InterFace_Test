@@ -14,8 +14,16 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path,re_path
+from UseCase_Model import views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('admin/', admin.site.urls),#django 管理页面
+    path('index/',views.exec_unittest), #首页
+    path('test/',views.go_unittest),#执行接口自动化测试
+    re_path('index/data_unittes/',views.data_unittes),#显示测试用例表
+    re_path('progress_monitor/',views.show_progress),#显示测试进度条
+    path('go_report/',views.go_report),#测试报告列表页
+    re_path('index/test_report/',views.test_report),#显示测试报告列表
+    re_path('go_report/show_report/',views.show_report),#查看测试报告
 ]
