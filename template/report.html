@@ -8,6 +8,24 @@
             data:{
                 blogs:data.testreport,
                 page:data.page
+            },
+            methods:{
+                del:function(id){
+                    console.log("in!!");
+                    var flag = window.confirm("确定删除吗？");
+                    if (flag == true){
+                        getJSON("go_report/del/",{
+                            "id":id
+                        },function(err,r){
+                            if(err){
+                                return alert(err.message || err.error ||err);
+                            }else{
+                                refresh();
+                                return;
+                            }
+                        });
+                    }
+                }
             }
         });
         $('#vm').show();
@@ -19,6 +37,17 @@
             if (err){
                 return fatal(err);
             }
+
+            y = results.page.page_count;
+            $("#select").empty();
+            for(i=0;i<y;i++){
+                if(results.page.page_index == (i+1)){
+                    $("#select").append("<option value='"+(i+1)+"' selected='selected'>"+(i+1)+"</option>");
+                }else{
+                    $("#select").append("<option value='"+(i+1)+"'>"+(i+1)+"</option>");
+                } 
+            }
+
             $('#loading').hide();
             initVM(results);
         });
@@ -56,12 +85,12 @@
             </thead>
             <tbody>
                 <tr v-repeat="testreport:blogs">
-                    <td><span v-text="testreport.id"></span></td>
+                    <td><span v-text="testreport.page_id"></span></td>
                     <td><a target="_blank" v-attr="href:'/go_report/show_report?report_name='+testreport.testreport" v-text = "testreport.testreport"></a></td>
                     <td><span v-text="testreport.create_time"></span></td>
                     <td><span v-text="testreport.note"></span></td>
                     <td>
-                        <a href="/index"><i class="uk-icon-trash-o"></i>
+                        <a v-on="click:del(testreport.id)" href="#0"><i class="uk-icon-trash-o"></i></a>
                     </td>
                 </tr>
             </tbody>
@@ -70,9 +99,14 @@
         <div><ul class="uk-pagination">
                 <li v-if="! page.has_previous" class="uk-disabled"><span><i class="uk-icon-angle-double-left"></i>前一页</span></li>
                 <li v-if="page.has_previous"><a v-attr="onclick:'gotoPage(' + (page.page_index-1) + ')'" href="#0"><i class="uk-icon-angle-double-left"></i>前一页</a></li>
-                <li class="uk-active"><span v-text="page.page_index"></span></li>
-                <li v-if="! page.has_next" class="uk-disabled"><span><i class="uk-icon-angle-double-right"></i>下一页</span></li>
-                <li v-if="page.has_next"><a v-attr="onclick:'gotoPage(' + (page.page_index+1) + ')'" href="#0"><i class="uk-icon-angle-double-right"></i>下一页</a></li>
+                <!--<li class="uk-active"><span v-text="page.page_index"></span></li>-->
+                <li class="uk-active">
+                    <select id="select" onchange="gotoPage($('#select').val())">
+                        <option value ="1">1</option>
+                    </select>
+                </li>
+                <li v-if="! page.has_next" class="uk-disabled"><span>下一页<i class="uk-icon-angle-double-right"></i></span></li>
+                <li v-if="page.has_next"><a v-attr="onclick:'gotoPage(' + (page.page_index+1) + ')'" href="#0">下一页<i class="uk-icon-angle-double-right"></i></a></li>
             </ul></div>
     </div>
 

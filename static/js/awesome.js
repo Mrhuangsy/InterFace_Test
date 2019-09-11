@@ -124,6 +124,17 @@ function gotoPage(i) {
     location.assign('?' + $.param(r));
 }
 
+//打开一个窗口，固定位置
+function popupfunc(id){
+    var url = "index/edit/";
+    var name = "popup_page";
+    var iHeight = 500;
+    var iWidth = 600;
+    var iTop = (window.screen.availHeight -30 -iHeight)/2;
+    var iLeft = (window.screen.availWidth - 10 - iWidth)/2;
+    window.open(url,name,"height="+iHeight+",width="+iWidth+",top="+iTop+",left="+iLeft+",status=no,toolbar=no,menubar=no,location=no,resizable=no,scrollbars=0,titlebar=no")
+}
+
 function refresh() {
     var
         t = new Date().getTime(),

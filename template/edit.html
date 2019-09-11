@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>编辑</title>
+</head>
+<body>
+
+<h1>修改测试用例</h1>
+<p>{{ctx}}</p>
+<form method="post">
+    {% csrf_token %}
+    编号：<span>1</span><br><br>
+    utter:&nbsp;&nbsp;<input type="text" name="utter"><br><br>
+    nowtime:&nbsp;<input type="text" name="nowtime"><br><br>
+    session_id:&nbsp;<input type="text" name="session_id"><br><br>
+    expectResults:<input type="text" name="expectResults"><br><br>
+    <input type="submit" value="确定">
+</form>
+</body>
+</html>

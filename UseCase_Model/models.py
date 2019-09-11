@@ -8,6 +8,10 @@ class RobotTestUseCase(models.Model):
     session_id = models.CharField(max_length=20)
     expectResults = models.CharField(max_length=60)
 
+    def __str__(self):
+        return self.utter,self.nowtime,self.session_id,self.expectResults
+    
+
 class TestReport(models.Model):
     #测试报告
     testreport = models.CharField(max_length=60)

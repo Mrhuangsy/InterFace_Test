@@ -5,7 +5,9 @@
  * Copyright 2006, 2014 Klaus Hartl
  * Released under the MIT license
  */
+//console.log("33333");
 (function (factory) {
+    //console.log("11111");
     if (typeof define === 'function' && define.amd) {
         // AMD (Register as an anonymous module)
         define(['jquery'], factory);
@@ -17,7 +19,7 @@
         factory(jQuery);
     }
 }(function ($) {
-
+    //console.log("22222");
     var pluses = /\+/g;
 
     function encode(s) {
@@ -114,6 +116,7 @@
 }));
 
 $(document).ajaxSend(function(event, xhr, settings) {
+    //console.log('xhr test:'+xhr);
     function getCookie(name) {
         var cookieValue = null;
         if (document.cookie && document.cookie != '') {
@@ -135,6 +138,7 @@ $(document).ajaxSend(function(event, xhr, settings) {
         var protocol = document.location.protocol;
         var sr_origin = '//' + host;
         var origin = protocol + sr_origin;
+        console.log("url:"+url+" origin:"+origin);
         // Allow absolute or scheme relative URLs to same origin
         return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
             (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||

@@ -19,10 +19,10 @@ from src.utils.readConfig import readConfig
 from src.utils.configEmail import sendemail
 from src.db_fixture import data_operation
 from src.utils.log import logger
-from UseCase_Model import views
+#from UseCase_Model import views #测试用
 
  
-report_path = os.path.join(parentdir, 'src\\report\\')
+report_path = os.path.join(parentdir, 'src/report/')
 on_off = readConfig.get_email('on_off')
  
 class AllTest:#定义一个类AllTest
@@ -30,8 +30,8 @@ class AllTest:#定义一个类AllTest
 
         now = time.strftime("%Y-%m-%d %H_%M_%S")
         self.fn = now + '_result.html'#定义自动化测试文件名
-        self.caseListFile = os.path.join(parentdir, "src\\caselist.txt")#配置执行哪些测试文件的配置文件路径
-        self.caseFile = os.path.join(parentdir, "src\\interface")#真正的测试断言文件路径
+        self.caseListFile = os.path.join(parentdir, "src/caselist.txt")#配置执行哪些测试文件的配置文件路径
+        self.caseFile = os.path.join(parentdir, "src/interface")#真正的测试断言文件路径
         self.caseList = []
  
     def set_case_list(self):
@@ -85,6 +85,7 @@ class AllTest:#定义一个类AllTest
             if suit is not None:#判断test_suite是否为空
 
                 filename = report_path + self.fn
+                print("test filename::>",filename)
                 fp = open(filename, 'wb')#打开result/20181108/report.html测试报告文件，如果不存在就创建
                 #调用HTMLTestRunner
                 runner = HTMLTestRunner.HTMLTestRunner(stream=fp, title='Test Report', description='Test Description:')
@@ -123,5 +124,5 @@ class AllTest:#定义一个类AllTest
  
 if __name__ == '__main__':
     AllTest().run()
-    a = views.num_progress
-    print(a)
+    #a = views.num_progress
+    #print(a)

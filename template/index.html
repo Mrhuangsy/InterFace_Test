@@ -5,6 +5,7 @@
     // using jQuery
     {% comment %} function getCookie(name) {
         var cookieValue = null;
+        console.log("document.cookie:"+document)
         if (document.cookie && document.cookie !== '') {
             var cookies = document.cookie.split(';');
             for (var i = 0; i < cookies.length; i++) {
@@ -22,20 +23,19 @@
     console.log("csrftoken的值为："+csrftoken);
     console.log("js中csrftoken的值为："+$.cookie("csrftoken")); {% endcomment %}
 
-    function initVM(data){
+    function initVM(data,){
         var vm = new Vue({
             el:'#vm',
             data:{
                 blogs:data.usecaselist,
-                page:data.page,
-                test:'hello'
+                page:data.page
             },
             methods:{
                 execute_test:function(){
                     var sitv = setInterval(function(){
                         var prog_url = "/progress_monitor/"
                         getJSON(prog_url,{},function(err,res){
-                            console.log("err:"+err);
+                            //console.log("err:"+err);
                             $('#prog_in').width(res + '%');//改变进度条
                         });
                     },1000); //每一秒请求一次后台进度
@@ -43,8 +43,8 @@
                     postJSON("/test/",{
                         test_name:"TEST"
                     },function(err,r){
-                        console.log("执行err："+err)
-                        console.log(r.msg)
+                        //console.log("执行err："+err)
+                        //console.log(r.msg)
                         if(err){
                             clearInterval(sitv);//请求失败，结束对后台进度的查询
                             return alert(err.message || err.error ||err);
@@ -55,6 +55,100 @@
                         }
                         refresh();
                     });
+                },
+                edit:function(act){
+                    //alert("original_id"+document.getElementById("edit_utter").value)
+                    if (act == true){
+                        postJSON("index/edit/",{
+                            original_id:$("#edit_id").val(),
+                            new_utter:$("#edit_utter").val(),
+                            new_nowtime:$("#edit_nowtime").val(),
+                            new_session_id:$("#edit_session_id").val(),
+                            new_expectResults:$("#edit_expectResults").val()
+                        },function(err,r){
+                            //console.log("执行hide err："+err);
+                            //console.log(r.status);
+                            if(err){
+                                return alert(err.message || err.error ||err);
+                            }else{
+                                $("#hidebg").css("display","none");
+                                $("#editbox").css("display","none");
+                                refresh();
+                                //return alert(r.status);
+                                return
+                            }
+                        });
+                    }else{
+                        $("#hidebg").css("display","none");
+                        $("#editbox").css("display","none");
+                    }
+                },
+                show_edit_dialog:function(id,utter,nowtime,session_id,expectResults){//显示隐藏层和弹出层
+                    console.log("hello"+id+utter+nowtime+session_id+expectResults);
+                    $("#hidebg").css("display","block");  //显示隐藏层
+                    $("#hidebg").css("height",document.body.clientHeight+"px");  //设置隐藏层的高度为当前页面高度
+                    $("#editbox").css("display","block"); //显示弹出层
+                    $("#edit_id").val(id);
+                    $("#edit_utter").val(utter);
+                    $("#edit_nowtime").val(nowtime);
+                    $("#edit_session_id").val(session_id);
+                    $("#edit_expectResults").val(expectResults);
+                },
+                del:function(act){
+                    if (act == true){
+                        getJSON("index/del/",{
+                            "original_id":$("#del_id").val()
+                        },function(err,r){
+                            if(err){
+                                return alert(err.message || err.error ||err);
+                            }else{
+                                $("#hidebg").css("display","none");
+                                $("#delbox").css("display","none");
+                                refresh();
+                                return
+                            }
+                        });
+                    }else{
+                        $("#hidebg").css("display","none");
+                        $("#delbox").css("display","none");
+                    }
+                },
+                show_del_dialog:function(id,utter,nowtime,session_id,expectResults){
+                    $("#hidebg").css("display","block");
+                    $("#hidebg").css("height",document.body.clientHeight+"px");
+                    $("#delbox").css("display","block");
+                    $("#del_id").val(id);
+                    $("#del_utter").html(utter);
+                    $("#del_nowtime").html(nowtime);
+                    $("#del_session_id").html(session_id);
+                    $("#del_expectResults").html(expectResults);
+                },
+                add:function(act){
+                    if(act == true){
+                        postJSON("index/add/",{
+                            add_utter:$("#add_utter").val(),
+                            add_nowtime:$("#add_nowtime").val(),
+                            add_session_id:$("#add_session_id").val(),
+                            add_expectResults:$("#add_expectResults").val()
+                        },function(err,r){
+                            if(err){
+                                return alert(err.message || err.error ||err);
+                            }else{
+                                $("#hidebg").css("display","none");
+                                $("#addbox").css("display","none");
+                                refresh();
+                                return
+                            }
+                        });
+                    }else{
+                        $("#hidebg").css("display","none");
+                        $("#addbox").css("display","none");
+                    }
+                },
+                show_add_dialog:function(){
+                    $("#hidebg").css("display","block");
+                    $("#hidebg").css("height",document.body.clientHeight+"px");
+                    $("#addbox").css("display","block");
                 }
             }
         });
@@ -68,12 +162,47 @@
             if (err){
                 return fatal(err);
             }
+            y = results.page.page_count;
+            $("#select").empty();
+            for(i=0;i<y;i++){
+                if(results.page.page_index == (i+1)){
+                    $("#select").append("<option value='"+(i+1)+"' selected='selected'>"+(i+1)+"</option>");
+                }else{
+                    $("#select").append("<option value='"+(i+1)+"'>"+(i+1)+"</option>");
+                } 
+            }
             $('#loading').hide();
             initVM(results);
         });
     });
 
+    function stepPage(){
+        alert($("#select").val());
+    }
+
 </script>
+<style>
+    #hidebg { position:absolute;left:0px;top:0px;
+      background-color:#000;
+      width:100%;  /*宽度设置为100%，这样才能使隐藏背景层覆盖原页面*/
+      filter:alpha(opacity=60);  /*设置透明度为60%*/
+      opacity:0.6;  /*非IE浏览器下设置透明度为60%*/
+      display:none; /* http://www.jb51.net */
+      z-Index:2;}
+   #editbox { position:absolute;width:400px;height:300px;top:200px;left:30%;background-color:#fff;display:none;cursor:pointer;z-Index:3;}
+   #delbox { position:absolute;width:400px;height:300px;top:200px;left:30%;background-color:#fff;display:none;cursor:pointer;z-Index:3;}
+   #addbox { position:absolute;width:400px;height:300px;top:200px;left:30%;background-color:#fff;display:none;cursor:pointer;z-Index:3;}
+   #content { text-align:center;cursor:pointer;z-Index:1;}
+   div.edit_wrapper{
+        text-align:center;
+        display:table-cell;
+        vertical-align:middle;
+        margin:0px auto;
+    }
+    .text-bold{
+        font-weight:bold;
+    }
+</style>
 {% endblock %}
 {% block content %}
     <div class="uk-width-1-1 uk-margin-bottom">
@@ -92,6 +221,123 @@
     </div>
     
     <div id="vm" class="uk-width-1-1">
+        <div id="hidebg"></div><!--遮罩层-->
+        <!--新增用例页面-->
+        <div id="addbox" class="edit_wrapper">
+            <table style="margin:auto;height:100%;">
+                <tr><td></td>
+                    <td>
+                        &nbsp;
+                    </td>
+                </tr>
+                <tr><td class="text-bold">utter:</td>
+                    <td>
+                        <input type="text" id="add_utter"/>
+                    </td>
+                </tr>
+                <tr><td class="text-bold">nowtime:</td>
+                    <td>
+                        <input type="text" id="add_nowtime"/>
+                    </td>
+                </tr>
+                <tr><td class="text-bold">session_id:</td>
+                    <td>
+                        <input type="text" id="add_session_id"/>
+                    </td>
+                </tr>
+                <tr><td class="text-bold">expectResults:</td>
+                    <td>
+                        <input type="text" id="add_expectResults"/>
+                    </td>
+                </tr>
+                <tr style="text-align:center;" class="text-bold"><td>
+                        <input type="submit" v-on="click:add(true)" value="确定"/>
+                    </td>
+                    <td>
+                        <input type="submit" v-on="click:add(false)" value="取消"/>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <!--新增用例页面-end-->
+        <!--用例编辑页面-->
+        <div id="editbox" class="edit_wrapper">
+            <table style="margin:auto;height:100%;">
+                <tr><td></td>
+                    <td>
+                        <input type="hidden" id="edit_id" name = "original_id"/>
+                    </td>
+                </tr>
+                <tr><td class="text-bold">utter:</td>
+                    <td>
+                        <input type="text" id="edit_utter" name="new_utter"/>
+                    </td>
+                </tr>
+                <tr><td class="text-bold">nowtime:</td>
+                    <td>
+                        <input type="text" id="edit_nowtime" name="new_nowtime"/>
+                    </td>
+                </tr>
+                <tr><td class="text-bold">session_id:</td>
+                    <td>
+                        <input type="text" id="edit_session_id" name="new_session_id"/>
+                    </td>
+                </tr>
+                <tr><td class="text-bold">expectResults:</td>
+                    <td>
+                        <input type="text" id="edit_expectResults" name="new_expectResults"/>
+                    </td>
+                </tr>
+                <tr style="text-align:center;" class="text-bold"><td>
+                        <input type="submit" v-on="click:edit(true)" value="确定"/>
+                    </td>
+                    <td>
+                        <input type="submit" v-on="click:edit(false)" value="取消"/>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <!--用例编辑页面-end-->
+
+        <!--用例删除对话框-->
+        <div id="delbox" class="edit_wrapper">
+            <table style="margin:auto;height:100%;">
+                <tr><td></td>
+                    <td>
+                        <input type="hidden" id="del_id" name = "original_id"></input>
+                    </td>
+                </tr>
+                <tr><td class="text-bold">utter:</td>
+                    <td>
+                        <span id="del_utter" name="new_utter"></span>
+                    </td>
+                </tr>
+                <tr><td class="text-bold">nowtime:</td>
+                    <td>
+                        <span id="del_nowtime" name="new_nowtime"></span>
+                    </td>
+                </tr>
+                <tr><td class="text-bold">session_id:</td>
+                    <td>
+                        <span id="del_session_id" name="new_session_id"></span>
+                    </td>
+                </tr>
+                <tr><td class="text-bold">expectResults:</td>
+                    <td>
+                        <span id="del_expectResults" name="new_expectResults">{{expectResults}}</span>
+                    </td>
+                </tr>
+                <tr style="text-align:center;" class="text-bold"><td>
+                        <input type="submit" v-on="click:del(true)" value="删除">
+                    </td>
+                    <td>
+                        <input type="submit" v-on="click:del(false)" value="取消">
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <!--用例删除对话框-end-->
+        <a href="#0" v-on="click:show_add_dialog()" class="uk-button uk-button-primary"><i class="uk-icon-plus"></i> 新增用例</a>
         <a href="/index" class="uk-button uk-button-primary"><i class="uk-icon-plus"></i> 批量导入</a>
         <a href="#0" v-on="click:execute_test()" class="uk-button uk-button-primary">执行测试</a>
         <div id="prog_out" class="progress progress-striped active">
@@ -106,19 +352,20 @@
                     <th class="uk-width-1-10">nowtime</th>
                     <th class="uk-width-1-10">session_id</th>
                     <th class="uk-width-3-10">expectResults</th>
-                     <th class="uk-width-1-10">操作</th>
+                    <th class="uk-width-1-10">操作</th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-repeat="usecase:blogs">
-                    <td><span v-text="usecase.id"></span></td>
+                    <td><span v-text="usecase.page_id"></span></td>
                     <td><span v-text="usecase.utter"></span></td>
                     <td><span v-text="usecase.nowtime"></span></td>
                     <td><span v-text="usecase.session_id"></span></td>
                     <td><span v-text="usecase.expectResults"></span></td>
                     <td>
-                        <a href="/index"><i class="uk-icon-edit"></i>
-                        <a href="/index"><i class="uk-icon-trash-o"></i>
+                        <!--<a v-attr="onclick:'popupfunc('+usecase.id+')'" href="#0"><i class="uk-icon-edit"></i>-->
+                        <a v-on="click:show_edit_dialog(usecase.id,usecase.utter,usecase.nowtime,usecase.session_id,usecase.expectResults)" href="#0"><i class="uk-icon-edit"></i></a>&nbsp;&nbsp;
+                        <a v-on="click:show_del_dialog(usecase.id,usecase.utter,usecase.nowtime,usecase.session_id,usecase.expectResults)" href="#0"><i class="uk-icon-trash-o"></i></a>
                     </td>
                 </tr>
             </tbody>
@@ -127,49 +374,17 @@
         <div><ul class="uk-pagination">
                 <li v-if="! page.has_previous" class="uk-disabled"><span><i class="uk-icon-angle-double-left"></i>前一页</span></li>
                 <li v-if="page.has_previous"><a v-attr="onclick:'gotoPage(' + (page.page_index-1) + ')'" href="#0"><i class="uk-icon-angle-double-left"></i>前一页</a></li>
-                <li class="uk-active"><span v-text="page.page_index"></span></li>
-                <li v-if="! page.has_next" class="uk-disabled"><span><i class="uk-icon-angle-double-right"></i>下一页</span></li>
-                <li v-if="page.has_next"><a v-attr="onclick:'gotoPage(' + (page.page_index+1) + ')'" href="#0"><i class="uk-icon-angle-double-right"></i>下一页</a></li>
-            </ul></div>
+                <!--<li class="uk-active">
+                <span v-text="page.page_index"></span>
+                </li>-->
+                <li class="uk-active">
+                    <select id="select" onchange="gotoPage($('#select').val())">
+                        <option value ="1">1</option>
+                    </select>
+                </li>
+                <li v-if="! page.has_next" class="uk-disabled"><span>下一页<i class="uk-icon-angle-double-right"></i></span></li>
+                <li v-if="page.has_next"><a v-attr="onclick:'gotoPage(' + (page.page_index+1) + ')'" href="#0">下一页<i class="uk-icon-angle-double-right"></i></a></li>
+            </ul>
+        </div>
     </div>
-<!--
-    <div>
-        <form action="/test/" method="post">
-            {% csrf_token %}
-            <input type='text' name='test_name'/>
-            <input type='submit' value='执行测试'/>
-        </form>
-        <p>{{msg}}</p>
-    </div>
-    <div>{{page.page_count}}</div>
-    <div class="uk-width-1-1">
-        <a href="/index" class="uk-button uk-button-primary"><i class="uk-icon-plus"></i> 添加</a>
-
-        <table class="uk-table uk-table-hover">
-            <thead>
-                <tr>
-                    <th class="uk-width-1-10">编号</th>
-                    <th class="uk-width-4-10">utter</th>
-                    <th class="uk-width-2-10">nowtime</th>
-                    <th class="uk-width-2-10">session_id</th>
-                    <th class="uk-width-4-10">expectResults</th>
-                     <th class="uk-width-1-10">操作</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for usecase in usecaselist %}
-                <tr>
-                    <td>{{usecase.id}}</td>
-                    <td>{{usecase.utter}}</td>
-                    <td>{{usecase.nowtime}}</td>
-                    <td>{{usecase.session_id}}</td>
-                    <td>{{usecase.expectResults}}</td>
-                    <td>&nbsp;</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <div><a href='index/data_unittes/?page=1'>《</a><a href='index/data_unittes/?page=1'>{{page.page_count}}</a><a href='index/data_unittes/?page=1'>》</a></div>
-    </div>
-    -->
 {% endblock  %}

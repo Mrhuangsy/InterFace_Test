@@ -25,7 +25,7 @@ SECRET_KEY = 'u!)t^x5c*ikgm-oa1^)!dw8sompf)19r-tpz%mux3)t+-l37%w'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -77,11 +77,11 @@ WSGI_APPLICATION = 'InterFace_Test.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'myrobot',
-        'USER':'root',
-        'PASSWORD':'hsy1995A',
-        'HOST':'47.113.32.117',
-        'PORT':'3306',
+        'NAME': '',
+        'USER':'',
+        'PASSWORD':'',
+        'HOST':'',
+        'PORT':'',
     }
 }
 
@@ -108,7 +108,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'zh-Hans' #en-us英文
 
 TIME_ZONE = 'UTC'
 
@@ -124,5 +124,6 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (
-    os.path.join(BASE_DIR,'static/'),
+    os.path.join(BASE_DIR,'static'),
 )
+
